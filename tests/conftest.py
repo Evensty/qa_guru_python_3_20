@@ -1,40 +1,40 @@
-import allure_commons
+
+
+import allure
 import pytest
 from selene.support.shared import browser
-from selene import support
 from appium import webdriver
+from appium.options.android import UiAutomator2Options
+import os
+from dotenv import load_dotenv
 
-import config
+from mobile_tests.utils import attach
 
 
-@pytest.fixture(scope='function', autouse=True)
-def driver_management():
-    browser.config._wait_decorator = support._logging.wait_with(
-        context=allure_commons._allure.StepContext
+@pytest.fixture(scope="function", autouse=True)
+def driver_config():
+    load_dotenv()
+    options = UiAutomator2Options().load_capabilities(
+        {
+            "platformName": "android",
+            "platformVersion": "9.0",
+            "deviceName": "Google Pixel 3",
+            "app": os.getenv("app"),
+            "bstack:options": {
+                "projectName": "Wiki mibile",
+                "buildName": "browserstack-build-1",
+                "sessionName": "BStack session",
+                "userName": os.getenv("browserstack.userName"),
+                "accessKey": os.getenv("browserstack.accessKey"),
+            },
+        }
     )
-    browser.config.driver = webdriver.Remote(
-        config.settings.remote_url, options=config.settings.driver_options
-    )
-    browser.config.timeout = config.settings.timeout
+
+    with allure.step("setup driver"):
+        browser.config.driver = webdriver.Remote(
+            os.getenv("remote_url"), options=options
+        )
 
     yield
-
-
-    # - java examples:
-    #   - https://github.com/qa-guru/mobile-tests-13/blob/master/src/test/java/helpers/Attach.java
-    #   - https://github.com/qa-guru/mobile-tests-13/blob/master/src/test/java/helpers/Browserstack.java
-    # - and official allure docs for python:
-    #   - https://docs.qameta.io/allure#_attachments_5
-
-    # session_id = utils.webdriver.get_session_id();
-
-    # attach.screenshot_as("Last screenshot");
-    # attach.page_source();
-
+    attach.add_video(browser)
     browser.quit()
-    '''
-    # was:
-    step("Close driver", Selenide::closeWebDriver);
-    '''
-
-    # attach.video(session_id);
