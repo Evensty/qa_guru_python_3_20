@@ -1,5 +1,3 @@
-
-
 import allure
 import pytest
 from selene.support.shared import browser
@@ -21,9 +19,9 @@ def driver_config():
             "deviceName": "Google Pixel 3",
             "app": os.getenv("app"),
             "bstack:options": {
-                "projectName": "Wiki mibile",
-                "buildName": "browserstack-build-1",
-                "sessionName": "BStack session",
+                "projectName": os.getenv("projectName"),
+                "buildName": os.getenv("buildName"),
+                "sessionName": os.getenv("sessionName"),
                 "userName": os.getenv("browserstack.userName"),
                 "accessKey": os.getenv("browserstack.accessKey"),
             },
